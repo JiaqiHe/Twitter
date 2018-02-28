@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AlamofireImage
 
 
 class TweetCell: UITableViewCell {
@@ -16,13 +17,19 @@ class TweetCell: UITableViewCell {
     @IBOutlet weak var createdAtLabel: UILabel!
     @IBOutlet weak var tweetContent: UILabel!
     @IBOutlet weak var replyLabel: UILabel!
+    @IBOutlet weak var retweetButton: UIButton!
     @IBOutlet weak var retweetLabel: UILabel!
+    @IBOutlet weak var favorButton: UIButton!
     @IBOutlet weak var favorLabel: UILabel!
     
-
+    
+   
+    
     
     var tweet: Tweet! {
         didSet {
+            let profileImageURL = URL(string: tweet.user.profileImageURL)!
+            profileImage.af_setImage(withURL: profileImageURL)
             name.text = tweet.user.name
             screen_name.text = tweet.user.screenName
             createdAtLabel.text = tweet.createdAtString
@@ -30,6 +37,16 @@ class TweetCell: UITableViewCell {
             retweetLabel.text = String(tweet.retweetCount)
             let str = tweet.favoriteCount as! Int
             favorLabel.text = "\(str)"
+            if tweet.retweeted == true {
+                retweetButton.setImage(UIImage(named: "retweet-icon-green"), for: UIControlState(rawValue: 1))
+            } else {
+                retweetButton.setImage(UIImage(named: "retweet-icon"), for: UIControlState(rawValue: 0))
+            }
+            if tweet.favorited == true {
+                favorButton.setImage(UIImage(named: "favor-icon-red"), for: UIControlState(rawValue: 1))
+            } else {
+                favorButton.setImage(UIImage(named: "favor-icon"), for: UIControlState(rawValue: 0))
+            }
             
         }
     }
@@ -44,6 +61,8 @@ class TweetCell: UITableViewCell {
         
         // Configure the view for the selected state
     }
+    
+    
     
     
 }
