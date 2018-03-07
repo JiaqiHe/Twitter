@@ -21,12 +21,14 @@ class NewTweetViewController: UIViewController {
     @IBOutlet weak var textField: RSKPlaceholderTextView!
     
     @IBAction func didTapTweet(_ sender: UIBarButtonItem) {
+//        var textStorage: NSTextStorage { get }
         let text = textField.text
         APIManager.shared.composeTweet(with: text!) { (tweet : Tweet?, error : Error?) in
             if error != nil {
                 print(error?.localizedDescription)
             } else {
                 print("success")
+                self.delegate?.did(post: tweet!)
             }
         }
     }
@@ -68,7 +70,10 @@ class NewTweetViewController: UIViewController {
 //    }
  
 
-    
+    func did(post: Tweet) {
+        
+        
+    }
     
     /*
     // MARK: - Navigation
