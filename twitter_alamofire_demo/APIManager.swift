@@ -41,7 +41,7 @@ class APIManager: SessionManager {
                     print("Welcome \(user.name)")
                     
                     // MARK: TODO: set User.current, so that it's persisted
-                    
+                    User.current = user
                     success()
                 }
             })
@@ -54,6 +54,7 @@ class APIManager: SessionManager {
         clearCredentials()
         
         // TODO: Clear current user by setting it to nil
+        User.current = nil
 
         NotificationCenter.default.post(name: NSNotification.Name("didLogout"), object: nil)
     }
@@ -80,15 +81,15 @@ class APIManager: SessionManager {
 
         // This uses tweets from disk to avoid hitting rate limit. Comment out if you want fresh
         // tweets,
-        if let data = UserDefaults.standard.object(forKey: "hometimeline_tweets") as? Data {
-            let tweetDictionaries = NSKeyedUnarchiver.unarchiveObject(with: data) as! [[String: Any]]
-            let tweets = tweetDictionaries.flatMap({ (dictionary) -> Tweet in
-                Tweet(dictionary: dictionary)
-            })
-
-            completion(tweets, nil)
-            return
-        }
+//        if let data = UserDefaults.standard.object(forKey: "hometimeline_tweets") as? Data {
+//            let tweetDictionaries = NSKeyedUnarchiver.unarchiveObject(with: data) as! [[String: Any]]
+//            let tweets = tweetDictionaries.flatMap({ (dictionary) -> Tweet in
+//                Tweet(dictionary: dictionary)
+//            })
+//
+//            completion(tweets, nil)
+//            return
+//        }
 
         request(URL(string: "https://api.twitter.com/1.1/statuses/home_timeline.json")!, method: .get)
             .validate()
@@ -118,14 +119,59 @@ class APIManager: SessionManager {
     }
     
     // MARK: TODO: Favorite a Tweet
-    
-    // MARK: TODO: Un-Favorite a Tweet
+    func favorite(_ tweet: Tweet, isFavored: Bool, completion: @escaping (Tweet?, Error?) -> ()) {
+        var urlString : String = ""
+        if isFavored {
+            urlString = "https://api.twitter.com/1.1/favorites/destroy.json"
+        } else {
+            urlString = "https://api.twitter.com/1.1/favorites/create.json"
+        }
+        let parameters = ["id": tweet.id]
+        request(urlString, method: .post, parameters: parameters, encoding: URLEncoding.queryString).validate().responseJSON { (response) in
+            if response.result.isSuccess,
+                let tweetDictionary = response.result.value as? [String: Any] {
+                let tweet = Tweet(dictionary: tweetDictionary)
+                completion(tweet, nil)
+            } else {
+                completion(nil, response.result.error)
+            }
+        }
+    }
     
     // MARK: TODO: Retweet
-    
     // MARK: TODO: Un-Retweet
+    func retweet(_ tweet: Tweet, isRetweeted: Bool, completion: @escaping (Tweet?, Error?) -> ()) {
+        var urlString : String = ""
+        if isRetweeted {
+            urlString = "https://api.twitter.com/1.1/statuses/unretweet/"
+        } else {
+            urlString = "https://api.twitter.com/1.1/statuses/retweet/"
+        }
+//        let parameters = ["id": tweet.id]
+        urlString = urlString + String(tweet.id) + ".json"
+        request(urlString, method: .post, encoding: URLEncoding.queryString).validate().responseJSON { (response) in
+            if response.result.isSuccess,
+                let tweetDictionary = response.result.value as? [String: Any] {
+                let tweet = Tweet(dictionary: tweetDictionary)
+                completion(tweet, nil)
+            } else {
+                completion(nil, response.result.error)
+            }
+        }
+    }
     
     // MARK: TODO: Compose Tweet
+    func composeTweet(with text: String, completion: @escaping (Tweet?, Error?) -> ()) {
+        let urlString = "https://api.twitter.com/1.1/statuses/update.json"
+        let parameters = ["status": text]
+        oauthManager.client.post(urlString, parameters: parameters, headers: nil, body: nil, success: { (response: OAuthSwiftResponse) in
+            let tweetDictionary = try! response.jsonObject() as! [String: Any]
+            let tweet = Tweet(dictionary: tweetDictionary)
+            completion(tweet, nil)
+        }) { (error: OAuthSwiftError) in
+            completion(nil, error.underlyingError)
+        }
+    }
     
     // MARK: TODO: Get User Timeline
     
