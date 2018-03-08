@@ -8,7 +8,7 @@
 
 import UIKit
 
-class TimelineViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class TimelineViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, NewTweetViewControllerDelegate {
     
     var tweets: [Tweet] = []
     
@@ -36,6 +36,7 @@ class TimelineViewController: UIViewController, UITableViewDelegate, UITableView
         tableView.insertSubview(refreshControl, at: 0)
     }
     
+    
     func refreshControlAction(_ refreshControl: UIRefreshControl) {
         APIManager.shared.getHomeTimeLine { (tweets, error) in
             if let tweets = tweets {
@@ -47,6 +48,7 @@ class TimelineViewController: UIViewController, UITableViewDelegate, UITableView
             }
         }
     }
+    
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return tweets.count
@@ -88,10 +90,28 @@ class TimelineViewController: UIViewController, UITableViewDelegate, UITableView
                 detailViewController.tweet = tweet
             }
         }
-        else if(segue.identifier == "newSegue") {
+        else if(segue.identifier == "newTweet") {
+            if let newTweetVC = segue.destination as? NewTweetViewController {
+                newTweetVC.delegate  = self as? NewTweetViewControllerDelegate
+                
+            }
+            
+            
         }
         
      }
- 
     
+    func did(post: Tweet) {
+        APIManager.shared.getHomeTimeLine { (tweets, error) in
+            if let tweets = tweets {
+                self.tweets = tweets
+                self.tableView.reloadData()
+            } else if let error = error {
+                print("Error getting home timeline: " + error.localizedDescription)
+            }
+        }
+    }
 }
+
+
+

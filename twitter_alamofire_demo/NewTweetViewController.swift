@@ -28,7 +28,8 @@ class NewTweetViewController: UIViewController {
                 print(error?.localizedDescription)
             } else {
                 print("success")
-                self.delegate?.did(post: tweet!)
+                self.delegate!.did(post: tweet!)
+                self.navigationController?.popViewController(animated: true)
             }
         }
     }
@@ -70,10 +71,6 @@ class NewTweetViewController: UIViewController {
 //    }
  
 
-    func did(post: Tweet) {
-        
-        
-    }
     
     /*
     // MARK: - Navigation
