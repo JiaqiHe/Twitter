@@ -66,6 +66,18 @@ class DetailViewController: UIViewController {
     }
     
     @IBAction func didTapRetweet(_ sender: Any) {
+        if(tweet.retweeted == false) {
+            tweet.retweeted = true
+            tweet.retweetCount += 1
+            updateData()
+            updateRetweetInDB(isRetweeted: false)
+        }
+        else {
+            tweet.retweeted = false
+            tweet.retweetCount -= 1
+            updateData()
+            updateRetweetInDB(isRetweeted: true)
+        }
     }
     
     @IBAction func didTapLike(_ sender: Any) {

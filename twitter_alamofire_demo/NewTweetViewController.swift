@@ -37,6 +37,7 @@ class NewTweetViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+//        textField.delegate = self
         showUser()
     }
 
@@ -53,6 +54,21 @@ class NewTweetViewController: UIViewController {
         usernameLabel.text = user.name
         userScreenNameLabel.text = user.screenName
     }
+    
+//    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+//        // TODO: Check the proposed new text character count
+//        // Allow or disallow the new text
+//        // Set the max character limit
+//        let characterLimit = 140
+//
+//        // Construct what the new text would be if we allowed the user's latest edit
+//        let newText = NSString(string: textView.text!).replacingCharacters(in: range, with: text)
+//
+//        // TODO: Update Character Count Label
+//
+//        // The new text should be allowed? True/False
+//        return newText.characters.count < characterLimit
+//    }
     
 //    func showUser(){
 //        APIManager.shared.getCurrentAccount(completion: { (user : User?, error : Error?) in
